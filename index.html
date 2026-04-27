@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud ten Formation Maker</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch-polyfill@1.4.1/dragdroptouch.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* --- General Page Styles --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Prevents the 'pull-to-refresh' gesture from interrupting your drag */
+            overscroll-behavior-y: contain;
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        /* --- Formation Area (The "Canvas") --- */
+        #formation-canvas {
+            width: 95%;
+            max-width: 1200px;
+            min-height: 300px;
+            background-color: white;
+            border: 2px solid #b0bec5;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+
+            /* KEY: We force a 3-row layout structure using CSS Grid */
+            display: grid;
+            grid-template-rows: repeat(3, min-content);
+            gap: 15px; /* Space between rows */
+        }
+        /* --- Row Container (Label + Row) --- */
+        .row-wrapper {
+            display: flex;
+            align-items: center;
+            min-height: 140px;
+            border-bottom: 1px dashed #eceff1;
+        }
+
+        .row-wrapper:last-child {
+            border-bottom: none;
+        }
+
+        /* --- Fixed Left Labels --- */
+        .row-label {
+            font-size: 10px;
+            font-weight: bold;
+            color: #90a4ae;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 60px; /* Slightly wider to fit horizontal text */
+            text-align: center;
+            user-select: none;
+            pointer-events: none;
+            line-height: 1.2;
+        }
+        .formation-row {
+            flex-grow: 1; /* Takes up remaining space */
+            min-height: 140px;
+            display: flex;
+            justify-content: center; /* Centers the idols in the row */
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .formation-row.drag-over {
+            background-color: rgba(33, 150, 243, 0.05);
+            outline: 2px dashed #2196F3;
+            border-radius: 8px;
+        }
+
+        
+        /* --- Member Slot (General definition) --- */
+        .member-slot {
+            width: 100px; /* Match the original width and height */
+            height: auto;
+            border-radius: 0px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0; /* Prevents the row from squeezing the image if it gets crowded */
+            transition: transform 0.2s, margin 0.2s;;
+        }
+        /* Prevent the native popup on images */
+        .member-slot img, .member-slot {
+            -webkit-touch-callout: none; /* Prevents the "Save Image" popup on iOS */
+            -webkit-user-select: none;   /* Prevents text selection */
+            user-select: none;
+            touch-action: none;          /* Critical: Tells the browser the app handles the touch */
+        }
+        /* We use !important to force the pale effect over any other styles */
+        .member-slot.is-selected {
+            opacity: 0.2 !important; /* One single, very pale look */
+            filter: grayscale(100%); /* Optional: helps differentiate from the "active" ones */
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+/* This stops the image from being ghost-dragged once it's pale */
+.is-selected img {
+    pointer-events: none;
+}
+      
+        .member-slot:hover {
+            transform: scale(1.05);
+        }
+
+        .member-slot img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain; /* This ensures the full image is visible without cropping */
+        }
+
+        /* --- Formation Rows --- */
+        .formation-row {
+            min-height: 140px;
+            border: 1px solid transparent; /* invisible target */
+            border-radius: 8px;
+
+            /* KEY: FLEXBOX for automatic centering of members within the row! */
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            gap: 10px; /* Space between members */
+        }
+
+        /* Styling to show the row is a drop target when hovering a dragged image */
+        .formation-row.drag-over {
+            border: 1px solid #2196F3;
+            background-color: rgba(33, 150, 243, 0.05);
+        }
+
+        /* --- Member Roster (Available Pool) --- */
+        #member-roster {
+            width: 95%;
+            max-width: 1200px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        #roster-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* The members in the roster are draggable */
+        .roster-member {
+            cursor: grab;
+        }
+
+        .roster-member:active {
+            cursor: grabbing;
+        }
+
+        .member-slot {
+            position: relative; /* Essential for positioning icons */
+        }
+
+        /* For Centers */
+        .member-slot.is-center::after {
+           content: 'センター';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%); /* Centers the badge horizontally */
+            background: #D4AF37; /* Gold color */
+            color: white;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 3px;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
+        }
+/* The NEW Badge */
+        .member-slot.is-newcomer::before {
+            content: '初';
+            position: absolute;
+            top: 5px;    /* Moved from bottom to top */
+            left: 5px;
+            background: #f44336; 
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 4px;
+            border-radius: 3px;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        /* --- Admin Controls (Reset) --- */
+       #controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+
+    #canvas-title-display {
+    text-align: center;
+    font-size: 36px; /* Your requested size */
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #222;
+    min-height: 45px;
+    letter-spacing: -0.5px;
+    width: 100%;
+    }
+        .title-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #444;
+}
+       #formation-title-input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #cfd8dc;
+    width: 250px;
+    font-family: inherit;
+}
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-download {
+        background-color: #ffb7c5; /* Soft Pink */
+        color: white;
+        }
+
+        .btn-download:hover {
+    background-color: #ff9eaa; /* Slightly deeper pink on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 183, 197, 0.4);
+}
+
+/* Reset Button - Grey */
+.btn-reset {
+    background-color: #b0bec5; /* Muted Blue-Grey */
+    color: white;
+}
+        .btn-reset:hover {
+    background-color: #90a4ae;
+    transform: translateY(-1px);
+}
+
+    </style>
+</head>
+<body>
+
+    <h1>Cloud ten Formation Maker</h1>
+    
+    <div id="controls">
+    <button class="btn-reset" onclick="resetFormation()">Reset Formation</button>
+    <button class="btn-download" onclick="downloadFormation()">Download PNG</button>
+        </div>
+            <div class="title-input-group">
+        <label for="formation-title-input">Type the title:</label>
+        <input type="text" id="formation-title-input" placeholder="e.g., Cloud ten 1st Single" oninput="updateTitle(this.value)">
+            </div>
+    <div id="formation-canvas">
+
+        <div id="canvas-title-display" style="text-align: center; font-size: 36px; font-weight: bold; margin-bottom: 20px; color: #333; min-height: 30px;"></div>
+        
+        <div class="row-wrapper">
+            <div class="row-label">3rd<br>Row</div>
+            <div class="formation-row" data-row-id="3"></div>
+        </div>
+        <div class="row-wrapper">
+            <div class="row-label">2nd<br>Row</div>
+            <div class="formation-row" data-row-id="2"></div>
+        </div>
+        <div class="row-wrapper">
+            <div class="row-label">1st<br>Row</div>
+            <div class="formation-row" data-row-id="1"></div>
+        </div>
+    </div>
+
+    <div id="member-roster">
+        <h2>Select Members</h2>
+        <div id="roster-list">
+            </div>
+    </div>
+
+    <script>
+        /* --- CONFIGURATION --- */
+        
+        // Define your members here. 
+        // IMPORTANT: In a real website, you would put links to individual member photos (JPG/PNG).
+        // For this demo, I will use placeholder images.
+        const allMembers = [
+            { id: 'idol_01', name: 'Abe', image: './images/abe.jpeg' },
+            { id: 'idol_02', name: 'Fukami', image: './images/fukami.jpeg' },
+            { id: 'idol_03', name: 'Fukuda', image: './images/fukuda.jpeg' },
+            { id: 'idol_04', name: 'Fukuma', image: './images/fukuma.jpg' },
+            { id: 'idol_05', name: 'Fukushima', image: './images/fukushima.jpeg' },
+            { id: 'idol_06', name: 'Funamizu', image: './images/funamizu.jpeg' },
+            { id: 'idol_07', name: 'Hamaya', image: './images/hamaya.jpg' },
+            { id: 'idol_08', name: 'Hasumi', image: './images/hasumi.jpg' },
+            { id: 'idol_09', name: 'Hiraishi', image: './images/hiraishi.jpeg' },
+            { id: 'idol_10', name: 'Hiraoka', image: './images/hiraoka.jpeg' },
+            { id: 'idol_11', name: 'Honda', image: './images/honda.jpeg' },
+            { id: 'idol_12', name: 'Inaba', image: './images/inaba.jpeg' },
+            { id: 'idol_13', name: 'Kimura', image: './images/kimura.jpeg' },
+            { id: 'idol_14', name: 'Kitanagi', image: './images/kitanagi.jpeg' },
+            { id: 'idol_15', name: 'Komai', image: './images/komai.jpeg' },
+            { id: 'idol_16', name: 'Komine', image: './images/komine.jpeg' },
+            { id: 'idol_17', name: 'Koroki', image: './images/koroki.jpeg' },
+            { id: 'idol_18', name: 'Matsuo', image: './images/matuso.jpeg' },
+            { id: 'idol_19', name: 'Mochizuki', image: './images/mochizuki.jpeg' },
+            { id: 'idol_20', name: 'Nemoto', image: './images/nemoto.jpeg' },
+            { id: 'idol_21', name: 'Nishiyama', image: './images/nishiyama.jpeg' },
+            { id: 'idol_22', name: 'Ose', image: './images/ose.jpeg' },
+            { id: 'idol_23', name: 'Owada', image: './images/owada.jpeg' },
+            { id: 'idol_24', name: 'Sakuragi', image: './images/sakuragi.jpeg' },
+            { id: 'idol_25', name: 'Sato', image: './images/sato.jpg' },
+            { id: 'idol_26', name: 'Seki', image: './images/seki.jpeg' },
+            { id: 'idol_27', name: 'Tomizawa', image: './images/tomizawa.jpg' },
+            { id: 'idol_28', name: 'Ueno', image: './images/ueno.jpeg' },
+            { id: 'idol_29', name: 'Uji', image: './images/uji.jpeg' },
+            { id: 'idol_30', name: 'Watanabe', image: './images/watanabe.jpeg' },
+        ];
+
+        /* --- INITIALIZATION --- */
+
+        // Step 1: Initialize the available roster
+        const rosterListDiv = document.getElementById('roster-list');
+        allMembers.forEach(member => {
+            const memberDiv = createDraggableMemberElement(member);
+            rosterListDiv.appendChild(memberDiv);
+        });
+
+        // Step 2: Set up the drag and drop listeners for the formation rows
+        const formationRows = document.querySelectorAll('.formation-row');
+        formationRows.forEach(row => {
+            // Dragenter/over/leave: Control visual style
+            row.addEventListener('dragenter', handleDragEnter);
+            row.addEventListener('dragover', handleDragOver); // REQUIRED for drop to work
+            row.addEventListener('dragleave', handleDragLeave);
+            // Drop: The actual event
+            row.addEventListener('drop', handleDrop);
+        });
+
+        /* --- DRAG & DROP LOGIC --- */
+
+        let currentlyDraggedId = null;
+
+        // Function to create a clean member element (used in roster and formation)
+function createDraggableMemberElement(memberData) {
+    const container = document.createElement('div');
+    container.classList.add('member-slot', 'roster-member');
+    container.id = memberData.id;
+    container.setAttribute('draggable', 'true');
+
+    container.addEventListener('dragstart', (e) => {
+    currentlyDraggedId = memberData.id;
+    e.dataTransfer.setData('text/plain', memberData.id);
+    
+    // Check if the image we are dragging is already in a formation row
+    if (container.parentElement.classList.contains('formation-row')) {
+        e.dataTransfer.setData('source', 'canvas');
+    } else {
+        e.dataTransfer.setData('source', 'roster');
+    }
+});
+    
+            const img = document.createElement('img');
+            img.src = memberData.image;
+            img.alt = memberData.name;
+            container.appendChild(img);
+
+            return container;
+        }
+
+        // --- Drop Zone Listeners ---
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault(); // This is the single most important line for DnD
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+function handleDrop(e) {
+    e.preventDefault();
+    this.classList.remove('drag-over');
+
+    // Define your limit here (e.g., 10 members per row)
+    const MAX_PER_ROW = 10;
+    if (this.querySelectorAll('.member-slot:not(.is-selected)').length >= MAX_PER_ROW) {
+        alert("This row is full! Try placing them in a different row.");
+        return;
+    }
+
+    const droppedId = e.dataTransfer.getData('text/plain');
+    const source = e.dataTransfer.getData('source');
+    if (!droppedId) return;
+
+    const existingElement = document.getElementById(droppedId);
+
+    // --- NEW: Insertion Logic ---
+    // Find all existing members in this row (except the one being dragged)
+    const afterElement = getDragAfterElement(this, e.clientX);
+    
+    // CASE 1: Moving an image already in the formation (Rearranging)
+    if (source === 'canvas') {
+        if (afterElement == null) {
+            this.appendChild(existingElement);
+        } else {
+            this.insertBefore(existingElement, afterElement);
+        }
+        return; 
+    }
+
+    // CASE 2: Adding a new member from the roster
+    if (source === 'roster') {
+        if (existingElement.classList.contains('is-selected')) return;
+
+        existingElement.classList.add('is-selected');
+        const memberData = allMembers.find(m => m.id === droppedId);
+        const formationMemberElement = createDraggableMemberElement(memberData);
+        
+        formationMemberElement.onclick = function(e) {
+            // 1. If Center -> Switch to NEW (初)
+            if (this.classList.contains('is-center')) {
+                this.classList.remove('is-center');
+                this.classList.add('is-newcomer');
+            } 
+            // 2. If NEW (初) -> Switch to Blank (Normal) and mark as "ready-to-remove"
+            else if (this.classList.contains('is-newcomer')) {
+                this.classList.remove('is-newcomer');
+                this.dataset.readyToRemove = "true"; 
+            } 
+            // 3. If Blank and previously marked -> Remove from formation
+            else if (this.dataset.readyToRemove === "true") {
+                existingElement.classList.remove('is-selected');
+                this.remove();
+            }
+            // 4. If Normal (Freshly added) -> Switch to CENTER
+            else {
+                this.classList.add('is-center');
+            }
+        };
+        // Insert at the specific position
+        if (afterElement == null) {
+            this.appendChild(formationMemberElement);
+        } else {
+            this.insertBefore(formationMemberElement, afterElement);
+        }
+    }
+}
+
+/**
+ * Helper function to determine which element the mouse is currently "before"
+ */
+function getDragAfterElement(container, x) {
+    // Get all members in the row except the one currently being dragged
+    const draggableElements = [...container.querySelectorAll('.member-slot:not(.is-selected)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = x - box.left - box.width / 2; // Distance to the center of the element
+        
+        // We want the element where the offset is negative (mouse is to the left of the center)
+        // but closest to 0.
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+        /* --- CONTROL FUNCTION --- */
+        function updateTitle(value) {
+    const display = document.getElementById('canvas-title-display');
+    display.innerText = value;
+}
+        function resetFormation() {
+    const rows = document.querySelectorAll('.formation-row');
+    rows.forEach(row => row.innerHTML = '');
+    
+    const rosterMembers = document.querySelectorAll('.member-slot');
+    rosterMembers.forEach(m => m.classList.remove('is-selected'));
+
+    // Clear the title
+    document.getElementById('formation-title-input').value = '';
+    document.getElementById('canvas-title-display').innerText = '';
+}
+    
+    function downloadFormation() {
+    const canvas = document.getElementById('formation-canvas');
+    
+    html2canvas(canvas, {
+        backgroundColor: "#ffffff", // Use pure white for a professional look
+        scale: 3, // Even higher resolution for printing/sharing
+        logging: false,
+        useCORS: true,
+        // This ensures the rounded corners of your canvas are respected
+        onclone: (clonedDoc) => {
+            clonedDoc.getElementById('formation-canvas').style.boxShadow = "none";
+        }
+    }).then(image => {
+        const link = document.createElement('a');
+        link.download = 'cloud-ten-formation.png';
+        link.href = image.toDataURL("image/png");
+        link.click();
+    });
+}
+    
+    </script>
+</body>
+</html>
