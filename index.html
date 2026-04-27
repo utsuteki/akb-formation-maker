@@ -40,13 +40,13 @@
             /* 3-row layout structure using CSS Grid */
             display: grid;
             grid-template-rows: repeat(3, min-content);
-            gap: 15px; /* Space between rows */
+            gap: 5px; /* Space between rows */
         }
         /* --- Row Container (Label + Row) --- */
         .row-wrapper {
             display: flex;
             align-items: center;
-            min-height: 140px;
+            min-height: 125px;
             border-bottom: 1px dashed #eceff1;
         }
 
@@ -69,11 +69,11 @@
         }
         .formation-row {
             flex-grow: 1; /* Takes up remaining space */
-            min-height: 140px;
+            min-height: 125px;
             display: flex;
             justify-content: center; /* Centers the idols in the row */
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             transition: background-color 0.2s;
         }
 
@@ -85,7 +85,7 @@
 
         /* --- Member Slot --- */
         .member-slot {
-            width: 100px; /* Match the original width and height */
+            width: 120px; /* Match the original width and height */
             height: auto;
             border-radius: 0px;
             overflow: hidden;
@@ -176,12 +176,12 @@
         .member-slot.is-center::after {
            content: 'センター';
             position: absolute;
-            bottom: 5px;
+            bottom: 2px;
             left: 50%;
             transform: translateX(-50%); 
             background: #D4AF37; /* This is gold */
             color: white;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: bold;
             padding: 2px 6px;
             border-radius: 3px;
@@ -193,8 +193,8 @@
         .member-slot.is-newcomer::before {
             content: '初';
             position: absolute;
-            top: 5px;
-            left: 5px;
+            top: 2px;
+            left: 2px;
             background: #f44336; 
             color: white;
             font-size: 11px;
@@ -313,36 +313,107 @@
         // Member pics are defined here 
         // Member pics are in ./images.
         const allMembers = [
-            { id: 'idol_01', name: 'Abe', image: './images/abe.jpeg' },
-            { id: 'idol_02', name: 'Fukami', image: './images/fukami.jpeg' },
-            { id: 'idol_03', name: 'Fukuda', image: './images/fukuda.jpeg' },
-            { id: 'idol_04', name: 'Fukuma', image: './images/fukuma.jpg' },
-            { id: 'idol_05', name: 'Fukushima', image: './images/fukushima.jpeg' },
-            { id: 'idol_06', name: 'Funamizu', image: './images/funamizu.jpeg' },
-            { id: 'idol_07', name: 'Hamaya', image: './images/hamaya.jpg' },
-            { id: 'idol_08', name: 'Hasumi', image: './images/hasumi.jpg' },
-            { id: 'idol_09', name: 'Hiraishi', image: './images/hiraishi.jpeg' },
-            { id: 'idol_10', name: 'Hiraoka', image: './images/hiraoka.jpeg' },
-            { id: 'idol_11', name: 'Honda', image: './images/honda.jpeg' },
-            { id: 'idol_12', name: 'Inaba', image: './images/inaba.jpeg' },
-            { id: 'idol_13', name: 'Kimura', image: './images/kimura.jpeg' },
-            { id: 'idol_14', name: 'Kitanagi', image: './images/kitanagi.jpeg' },
-            { id: 'idol_15', name: 'Komai', image: './images/komai.jpeg' },
-            { id: 'idol_16', name: 'Komine', image: './images/komine.jpeg' },
-            { id: 'idol_17', name: 'Koroki', image: './images/koroki.jpeg' },
-            { id: 'idol_18', name: 'Matsuo', image: './images/matuso.jpeg' },
-            { id: 'idol_19', name: 'Mochizuki', image: './images/mochizuki.jpeg' },
-            { id: 'idol_20', name: 'Nemoto', image: './images/nemoto.jpeg' },
-            { id: 'idol_21', name: 'Nishiyama', image: './images/nishiyama.jpeg' },
-            { id: 'idol_22', name: 'Ose', image: './images/ose.jpeg' },
-            { id: 'idol_23', name: 'Owada', image: './images/owada.jpeg' },
-            { id: 'idol_24', name: 'Sakuragi', image: './images/sakuragi.jpeg' },
-            { id: 'idol_25', name: 'Sato', image: './images/sato.jpg' },
-            { id: 'idol_26', name: 'Seki', image: './images/seki.jpeg' },
-            { id: 'idol_27', name: 'Tomizawa', image: './images/tomizawa.jpg' },
-            { id: 'idol_28', name: 'Ueno', image: './images/ueno.jpeg' },
-            { id: 'idol_29', name: 'Uji', image: './images/uji.jpeg' },
-            { id: 'idol_30', name: 'Watanabe', image: './images/watanabe.jpeg' },
+            { id: 'idol_01', name: 'idol01', image: './images/10001.jpg' },
+
+            { id: 'idol_02', name: 'idol02', image: './images/10002.jpg' },
+
+            { id: 'idol_03', name: 'idol03', image: './images/10003.jpg' },
+
+            { id: 'idol_04', name: 'idol04', image: './images/10004.jpg' },
+
+            { id: 'idol_05', name: 'idol05', image: './images/10005.jpg' },
+
+            { id: 'idol_06', name: 'idol06', image: './images/10006.jpg' },
+
+            { id: 'idol_07', name: 'idol07', image: './images/10007.jpg' },
+
+            { id: 'idol_08', name: 'idol08', image: './images/10008.jpg' },
+
+            { id: 'idol_09', name: 'idol09', image: './images/10009.jpg' },
+
+            { id: 'idol_10', name: 'idol10', image: './images/10010.jpg' },
+
+            { id: 'idol_11', name: 'idol11', image: './images/10011.jpg' },
+
+            { id: 'idol_12', name: 'idol12', image: './images/10012.jpg' },
+
+            { id: 'idol_13', name: 'idol13', image: './images/10013.jpg' },
+
+            { id: 'idol_14', name: 'idol14', image: './images/10014.jpg' },
+
+            { id: 'idol_15', name: 'idol15', image: './images/10015.jpg' },
+
+            { id: 'idol_16', name: 'idol16', image: './images/10016.jpg' },
+
+            { id: 'idol_17', name: 'idol17', image: './images/10017.jpg' },
+
+            { id: 'idol_18', name: 'idol18', image: './images/10018.jpg' },
+
+            { id: 'idol_19', name: 'idol19', image: './images/10019.jpg' },
+
+            { id: 'idol_20', name: 'idol20', image: './images/10020.jpg' },
+
+            { id: 'idol_21', name: 'idol21', image: './images/10021.jpg' },
+
+            { id: 'idol_22', name: 'idol22', image: './images/10022.jpg' },
+
+            { id: 'idol_23', name: 'idol23', image: './images/10023.jpg' },
+
+            { id: 'idol_24', name: 'idol24', image: './images/10024.jpg' },
+
+            { id: 'idol_25', name: 'idol25', image: './images/10025.jpg' },
+
+            { id: 'idol_26', name: 'idol26', image: './images/10026.jpg' },
+
+            { id: 'idol_27', name: 'idol27', image: './images/10027.jpg' },
+
+            { id: 'idol_28', name: 'idol28', image: './images/10028.jpg' },
+
+            { id: 'idol_29', name: 'idol29', image: './images/10029.jpg' },
+
+            { id: 'idol_30', name: 'idol30', image: './images/10030.jpg' },
+
+            { id: 'idol_31', name: 'idol31', image: './images/10031.jpg' },
+
+            { id: 'idol_32', name: 'idol32', image: './images/10032.jpg' },
+
+            { id: 'idol_33', name: 'idol33', image: './images/10033.jpg' },
+
+            { id: 'idol_34', name: 'idol34', image: './images/10034.jpg' },
+
+            { id: 'idol_35', name: 'idol35', image: './images/10035.jpg' },
+
+            { id: 'idol_36', name: 'idol36', image: './images/10036.jpg' },
+
+            { id: 'idol_37', name: 'idol37', image: './images/10037.jpg' },
+
+            { id: 'idol_38', name: 'idol38', image: './images/10038.jpg' },
+
+            { id: 'idol_39', name: 'idol39', image: './images/10039.jpg' },
+
+            { id: 'idol_40', name: 'idol40', image: './images/10040.jpg' },
+
+            { id: 'idol_41', name: 'idol41', image: './images/10041.jpg' },
+
+            { id: 'idol_42', name: 'idol42', image: './images/10042.jpg' },
+
+            { id: 'idol_43', name: 'idol43', image: './images/10043.jpg' },
+
+            { id: 'idol_44', name: 'idol44', image: './images/10044.jpg' },
+
+            { id: 'idol_45', name: 'idol45', image: './images/10045.jpg' },
+
+            { id: 'idol_46', name: 'idol46', image: './images/10046.jpg' },
+
+            { id: 'idol_47', name: 'idol47', image: './images/10047.jpg' },
+
+            { id: 'idol_48', name: 'idol48', image: './images/10048.jpg' },
+
+            { id: 'idol_49', name: 'idol49', image: './images/10049.jpg' },
+
+            { id: 'idol_50', name: 'idol50', image: './images/10050.jpg' },
+
+            { id: 'idol_51', name: 'idol51', image: './images/10051.jpg' },
         ];
 
         /* --- INITIALIZATION --- */
