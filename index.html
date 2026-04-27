@@ -76,7 +76,9 @@
             gap: 8px;
             transition: background-color 0.2s;
         }
-
+        .formation-row .member-slot {
+            cursor: pointer;
+        }
         .formation-row.drag-over {
             background-color: rgba(33, 150, 243, 0.05);
             outline: 2px dashed #2196F3;
@@ -468,41 +470,44 @@ function handleDrop(e) {
         return; 
     }
 
-    // CASE 2: Adding a new member from the roster
-    if (source === 'roster') {
-        if (existingElement.classList.contains('is-selected')) return;
+// CASE 2: Adding a new member from the roster
+if (source === 'roster') {
+    if (existingElement.classList.contains('is-selected')) return;
 
-        existingElement.classList.add('is-selected');
-        const memberData = allMembers.find(m => m.id === droppedId);
-        const formationMemberElement = createDraggableMemberElement(memberData);
-        
-        formationMemberElement.onclick = function(e) {
-            // 1. If Center -> Switch to NEW (初)
-            if (this.classList.contains('is-center')) {
-                this.classList.remove('is-center');
-                this.classList.add('is-newcomer');
-            } 
-            // 2. If NEW (初) -> Switch to Blank (Normal) and mark as "ready-to-remove"
-            else if (this.classList.contains('is-newcomer')) {
-                this.classList.remove('is-newcomer');
-                this.dataset.readyToRemove = "true"; 
-            } 
-            // 3. If Blank and previously marked -> Remove from formation
-            else if (this.dataset.readyToRemove === "true") {
-                existingElement.classList.remove('is-selected');
-                this.remove();
+    // Mark roster item as selected (dimmed)
+    existingElement.classList.add('is-selected');
+    
+    const memberData = allMembers.find(m => m.id === droppedId);
+    const formationMemberElement = createDraggableMemberElement(memberData);
+    
+    // Feature: Multi-stage click to edit or remove
+    formationMemberElement.onclick = function(e) {
+        // 1. If Normal -> Switch to CENTER
+        if (!this.classList.contains('is-center') && !this.classList.contains('is-newcomer')) {
+            this.classList.add('is-center');
+        } 
+        // 2. If Center -> Switch to NEW (初)
+        else if (this.classList.contains('is-center')) {
+            this.classList.remove('is-center');
+            this.classList.add('is-newcomer');
+        } 
+        // 3. If NEW (初) -> Remove and put back to roster
+        else if (this.classList.contains('is-newcomer')) {
+            // Find the original roster element and restore it
+            const originalRosterItem = document.getElementById(memberData.id);
+            if (originalRosterItem) {
+                originalRosterItem.classList.remove('is-selected');
             }
-            // 4. If Normal (Freshly added) -> Switch to CENTER
-            else {
-                this.classList.add('is-center');
-            }
-        };
-        // Insert at the specific position
-        if (afterElement == null) {
-            this.appendChild(formationMemberElement);
-        } else {
-            this.insertBefore(formationMemberElement, afterElement);
+            // Remove from the formation canvas
+            this.remove();
         }
+    };
+
+    // Insert at the specific position
+    if (afterElement == null) {
+        this.appendChild(formationMemberElement);
+    } else {
+        this.insertBefore(formationMemberElement, afterElement);
     }
 }
 
