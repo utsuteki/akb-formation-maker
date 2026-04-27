@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch-polyfill@1.4.1/dragdroptouch.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* --- General Page Styles --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f7f9fc;
@@ -19,9 +18,8 @@
             overscroll-behavior-y: contain;
         }
 
-        h1, h2 { color: #333; margin-bottom: 10px; }
+        h1, h2 { color: #333; }
 
-        /* --- Formation Area --- */
         #formation-canvas {
             width: 95%;
             max-width: 1200px;
@@ -44,19 +42,13 @@
             border-bottom: 1px dashed #eceff1;
         }
 
-        .row-wrapper:last-child { border-bottom: none; }
-
         .row-label {
             font-size: 10px;
             font-weight: bold;
             color: #90a4ae;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             width: 60px;
             text-align: center;
             user-select: none;
-            pointer-events: none;
-            line-height: 1.2;
         }
 
         .formation-row {
@@ -66,64 +58,32 @@
             justify-content: center;
             align-items: center;
             gap: 8px;
-            transition: background-color 0.2s;
         }
-
-        .formation-row .member-slot { cursor: pointer; }
 
         .formation-row.drag-over {
             background-color: rgba(33, 150, 243, 0.05);
             outline: 2px dashed #2196F3;
-            border-radius: 8px;
         }
 
-        /* --- Member Slot --- */
         .member-slot {
             width: 120px;
-            height: auto;
             position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             flex-shrink: 0;
-            transition: transform 0.2s;
+            cursor: grab;
         }
 
         .member-slot img {
             width: 100%;
-            height: auto;
-            display: block;
-            object-fit: contain;
-            -webkit-touch-callout: none;
-            user-select: none;
-        }
-
-        .member-slot.is-selected {
-            opacity: 0.2 !important;
-            filter: grayscale(100%);
             pointer-events: none;
         }
 
-        /* --- Roster --- */
-        #member-roster {
-            width: 95%;
-            max-width: 1200px;
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        /* Gray out roster item when used */
+        .is-selected {
+            opacity: 0.2 !important;
+            filter: grayscale(100%);
+            pointer-events: none !important;
         }
 
-        #roster-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-        }
-
-        .roster-member { cursor: grab; }
-
-        /* --- Badges --- */
         .member-slot.is-center::after {
             content: 'センター';
             position: absolute;
@@ -133,10 +93,9 @@
             background: #D4AF37;
             color: white;
             font-size: 10px;
-            font-weight: bold;
             padding: 2px 6px;
             border-radius: 3px;
-            z-index: 10;
+            font-weight: bold;
         }
 
         .member-slot.is-newcomer::before {
@@ -147,19 +106,30 @@
             background: #f44336;
             color: white;
             font-size: 11px;
-            font-weight: bold;
             padding: 2px 4px;
             border-radius: 3px;
-            z-index: 10;
+            font-weight: bold;
         }
 
-        /* --- UI Controls --- */
-        #controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
-        .title-input-group { display: flex; align-items: center; gap: 10px; font-weight: bold; margin-bottom: 10px; }
-        #canvas-title-display { text-align: center; font-size: 36px; font-weight: 800; margin-bottom: 20px; min-height: 45px; width: 100%; }
-        button { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .btn-download { background-color: #ffb7c5; color: white; }
-        .btn-reset { background-color: #b0bec5; color: white; }
+        #member-roster {
+            width: 95%;
+            max-width: 1200px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        #roster-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        #controls { margin-bottom: 20px; display: flex; gap: 10px; }
+        button { padding: 10px 20px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; }
+        .btn-reset { background: #b0bec5; color: white; }
+        .btn-download { background: #ffb7c5; color: white; }
     </style>
 </head>
 <body>
@@ -167,29 +137,15 @@
     <h1>AKB48 Senbatsu Formation Maker</h1>
     
     <div id="controls">
-        <button class="btn-reset" onclick="resetFormation()">Reset Formation</button>
+        <button class="btn-reset" onclick="resetFormation()">Reset</button>
         <button class="btn-download" onclick="downloadFormation()">Download PNG</button>
     </div>
 
-    <div class="title-input-group">
-        <label for="formation-title-input">Type the title:</label>
-        <input type="text" id="formation-title-input" placeholder="e.g., AKB48 68th Single" oninput="updateTitle(this.value)">
-    </div>
-
     <div id="formation-canvas">
-        <div id="canvas-title-display"></div>
-        <div class="row-wrapper">
-            <div class="row-label">3rd<br>Row</div>
-            <div class="formation-row" data-row-id="3"></div>
-        </div>
-        <div class="row-wrapper">
-            <div class="row-label">2nd<br>Row</div>
-            <div class="formation-row" data-row-id="2"></div>
-        </div>
-        <div class="row-wrapper">
-            <div class="row-label">1st<br>Row</div>
-            <div class="formation-row" data-row-id="1"></div>
-        </div>
+        <div id="canvas-title-display" style="text-align:center; font-size: 24px; font-weight: bold;"></div>
+        <div class="row-wrapper"><div class="row-label">3rd Row</div><div class="formation-row" data-row-id="3"></div></div>
+        <div class="row-wrapper"><div class="row-label">2nd Row</div><div class="formation-row" data-row-id="2"></div></div>
+        <div class="row-wrapper"><div class="row-label">1st Row</div><div class="formation-row" data-row-id="1"></div></div>
     </div>
 
     <div id="member-roster">
@@ -200,117 +156,92 @@
     <script>
         const allMembers = Array.from({ length: 51 }, (_, i) => ({
             id: `idol_${(i + 1).toString().padStart(2, '0')}`,
-            name: `idol${(i + 1).toString().padStart(2, '0')}`,
-            image: `./images/100${(1 + i).toString().padStart(2, '0')}.jpg`
+            name: `Member ${i + 1}`,
+            image: `./images/100${(i + 1).toString().padStart(2, '0')}.jpg`
         }));
 
-        /* --- INITIALIZATION --- */
-        const rosterListDiv = document.getElementById('roster-list');
-        allMembers.forEach(member => {
-            rosterListDiv.appendChild(createDraggableMemberElement(member));
+        // Initialize Roster
+        const rosterList = document.getElementById('roster-list');
+        allMembers.forEach(m => {
+            const el = createMemberUI(m, 'roster');
+            rosterList.appendChild(el);
         });
 
+        // Setup Drop Zones
         document.querySelectorAll('.formation-row').forEach(row => {
-            row.addEventListener('dragenter', handleDragEnter);
-            row.addEventListener('dragover', handleDragOver);
-            row.addEventListener('dragleave', handleDragLeave);
+            row.addEventListener('dragover', e => e.preventDefault());
+            row.addEventListener('dragenter', e => e.target.classList.add('drag-over'));
+            row.addEventListener('dragleave', e => e.target.classList.remove('drag-over'));
             row.addEventListener('drop', handleDrop);
         });
 
-        /* --- LOGIC --- */
-        function createDraggableMemberElement(memberData) {
-            const container = document.createElement('div');
-            container.classList.add('member-slot', 'roster-member');
-            container.id = memberData.id;
-            container.setAttribute('draggable', 'true');
+        function createMemberUI(data, type) {
+            const div = document.createElement('div');
+            div.classList.add('member-slot');
+            div.id = type === 'roster' ? data.id : `canvas_${data.id}_${Math.random().toString(36).substr(2, 5)}`;
+            div.setAttribute('draggable', 'true');
+            
+            const img = document.createElement('img');
+            img.src = data.image;
+            div.appendChild(img);
 
-            container.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', memberData.id);
-                const isCanvas = container.parentElement.classList.contains('formation-row');
-                e.dataTransfer.setData('source', isCanvas ? 'canvas' : 'roster');
+            div.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('memberId', data.id);
+                e.dataTransfer.setData('sourceId', div.id);
+                e.dataTransfer.setData('sourceType', type);
             });
 
-            const img = document.createElement('img');
-            img.src = memberData.image;
-            img.alt = memberData.name;
-            container.appendChild(img);
-            return container;
+            return div;
         }
-
-        function handleDragEnter(e) { e.preventDefault(); this.classList.add('drag-over'); }
-        function handleDragOver(e) { e.preventDefault(); }
-        function handleDragLeave(e) { this.classList.remove('drag-over'); }
 
         function handleDrop(e) {
             e.preventDefault();
             this.classList.remove('drag-over');
+            
+            const memberId = e.dataTransfer.getData('memberId');
+            const sourceId = e.dataTransfer.getData('sourceId');
+            const sourceType = e.dataTransfer.getData('sourceType');
+            
+            if (sourceType === 'roster') {
+                const rosterItem = document.getElementById(memberId);
+                if (rosterItem.classList.contains('is-selected')) return;
 
-            const droppedId = e.dataTransfer.getData('text/plain');
-            const source = e.dataTransfer.getData('source');
-            const existingElement = document.getElementById(droppedId);
-            if (!droppedId || !existingElement) return;
-
-            const afterElement = getDragAfterElement(this, e.clientX);
-
-            if (source === 'canvas') {
-                if (afterElement == null) this.appendChild(existingElement);
-                else this.insertBefore(existingElement, afterElement);
-            } else {
-                if (existingElement.classList.contains('is-selected')) return;
+                const data = allMembers.find(m => m.id === memberId);
+                const formationItem = createMemberUI(data, 'canvas');
                 
-                // Max Limit Check
-                if (this.querySelectorAll('.member-slot').length >= 10) {
-                    alert("Row is full!");
-                    return;
-                }
-
-                existingElement.classList.add('is-selected');
-                const memberData = allMembers.find(m => m.id === droppedId);
-                const formationMember = createDraggableMemberElement(memberData);
-                
-                formationMember.onclick = function() {
+                // Clicking logic for the Formation Canvas
+                formationItem.onclick = function() {
                     if (!this.classList.contains('is-center') && !this.classList.contains('is-newcomer')) {
                         this.classList.add('is-center');
                     } else if (this.classList.contains('is-center')) {
                         this.classList.remove('is-center');
                         this.classList.add('is-newcomer');
                     } else {
-                        existingElement.classList.remove('is-selected');
+                        // PUT BACK TO ROSTER
+                        rosterItem.classList.remove('is-selected');
                         this.remove();
                     }
                 };
 
-                if (afterElement == null) this.appendChild(formationMember);
-                else this.insertBefore(formationMember, afterElement);
+                rosterItem.classList.add('is-selected');
+                this.appendChild(formationItem);
+            } else {
+                // Rearrange inside canvas
+                const el = document.getElementById(sourceId);
+                this.appendChild(el);
             }
         }
 
-        function getDragAfterElement(container, x) {
-            const draggableElements = [...container.querySelectorAll('.member-slot:not(.dragging)')];
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = x - box.left - box.width / 2;
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else return closest;
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
-        }
-
-        function updateTitle(val) { document.getElementById('canvas-title-display').innerText = val; }
-
         function resetFormation() {
-            document.querySelectorAll('.formation-row').forEach(row => row.innerHTML = '');
-            document.querySelectorAll('.member-slot').forEach(m => m.classList.remove('is-selected'));
-            document.getElementById('formation-title-input').value = '';
-            document.getElementById('canvas-title-display').innerText = '';
+            document.querySelectorAll('.formation-row').forEach(r => r.innerHTML = '');
+            document.querySelectorAll('.is-selected').forEach(m => m.classList.remove('is-selected'));
         }
 
         function downloadFormation() {
-            const canvas = document.getElementById('formation-canvas');
-            html2canvas(canvas, { backgroundColor: "#ffffff", scale: 3 }).then(image => {
+            html2canvas(document.getElementById('formation-canvas')).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'formation.png';
-                link.href = image.toDataURL();
+                link.download = 'senbatsu.png';
+                link.href = canvas.toDataURL();
                 link.click();
             });
         }
