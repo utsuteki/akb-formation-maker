@@ -27,14 +27,20 @@
         #formation-canvas {
             width: 95%;
             max-width: 1200px;
-            min-height: 600px;
+            min-height: 700px; 
             background-color: white;
             border: 2px solid #b0bec5;
             border-radius: 12px;
-            padding: 20px;
+            /* Increase the first value (top padding) to push everything down */
+            padding: 60px 20px 30px 20px; 
             margin-bottom: 30px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 
+            display: grid;
+            /* auto for title area, 1fr for the three rows */
+            grid-template-rows: auto 1fr 1fr 1fr; 
+            gap: 10px;
+        }
             /* 3-row layout structure using CSS Grid */
             display: grid;
             grid-template-rows: repeat(3, 1fr);
@@ -213,14 +219,19 @@
 
         #canvas-title-display {
             text-align: center;
-            font-size: 36px; 
+            font-size: 38px; 
             font-weight: 800;
-            margin-bottom: 20px;
+            /* Increased margin-bottom to create a gap before the 3rd row */
+            margin-bottom: 50px; 
             color: #222;
-            min-height: 45px;
+            /* Give it a defined area so it stays centered vertically in its slot */
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             letter-spacing: -0.5px;
             width: 100%;
-            }
+        }
         
         .title-input-group {
             display: flex;
