@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud ten Formation Maker</title>
+    <title>AKB48 Formation Maker</title>
     <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch-polyfill@1.4.1/dragdroptouch.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -273,14 +273,14 @@
     </style>
 </head>
 <body>
-    <h1>Cloud ten Formation Maker</h1>
+    <h1>AKB48 Formation Maker</h1>
     <div id="controls">
     <button class="btn-reset" onclick="resetFormation()">Reset Formation</button>
     <button class="btn-download" onclick="downloadFormation()">Download PNG</button>
         </div>
             <div class="title-input-group">
         <label for="formation-title-input">Type the title:</label>
-        <input type="text" id="formation-title-input" placeholder="e.g., Cloud ten 1st Single" oninput="updateTitle(this.value)">
+        <input type="text" id="formation-title-input" placeholder="e.g. AKB48 68th Single" oninput="updateTitle(this.value)">
             </div>
     
     <div id="formation-canvas">
@@ -314,57 +314,31 @@
         // Member pics are in ./images.
         const allMembers = [
             { id: 'idol_01', name: 'idol01', image: './images/10001.jpg' },
-
             { id: 'idol_02', name: 'idol02', image: './images/10002.jpg' },
-
             { id: 'idol_03', name: 'idol03', image: './images/10003.jpg' },
-
             { id: 'idol_04', name: 'idol04', image: './images/10004.jpg' },
-
             { id: 'idol_05', name: 'idol05', image: './images/10005.jpg' },
-
             { id: 'idol_06', name: 'idol06', image: './images/10006.jpg' },
-
             { id: 'idol_07', name: 'idol07', image: './images/10007.jpg' },
-
             { id: 'idol_08', name: 'idol08', image: './images/10008.jpg' },
-
             { id: 'idol_09', name: 'idol09', image: './images/10009.jpg' },
-
             { id: 'idol_10', name: 'idol10', image: './images/10010.jpg' },
-
             { id: 'idol_11', name: 'idol11', image: './images/10011.jpg' },
-
             { id: 'idol_12', name: 'idol12', image: './images/10012.jpg' },
-
             { id: 'idol_13', name: 'idol13', image: './images/10013.jpg' },
-
             { id: 'idol_14', name: 'idol14', image: './images/10014.jpg' },
-
             { id: 'idol_15', name: 'idol15', image: './images/10015.jpg' },
-
             { id: 'idol_16', name: 'idol16', image: './images/10016.jpg' },
-
             { id: 'idol_17', name: 'idol17', image: './images/10017.jpg' },
-
             { id: 'idol_18', name: 'idol18', image: './images/10018.jpg' },
-
             { id: 'idol_19', name: 'idol19', image: './images/10019.jpg' },
-
             { id: 'idol_20', name: 'idol20', image: './images/10020.jpg' },
-
             { id: 'idol_21', name: 'idol21', image: './images/10021.jpg' },
-
             { id: 'idol_22', name: 'idol22', image: './images/10022.jpg' },
-
             { id: 'idol_23', name: 'idol23', image: './images/10023.jpg' },
-
             { id: 'idol_24', name: 'idol24', image: './images/10024.jpg' },
-
             { id: 'idol_25', name: 'idol25', image: './images/10025.jpg' },
-
             { id: 'idol_26', name: 'idol26', image: './images/10026.jpg' },
-
             { id: 'idol_27', name: 'idol27', image: './images/10027.jpg' },
 
             { id: 'idol_28', name: 'idol28', image: './images/10028.jpg' },
